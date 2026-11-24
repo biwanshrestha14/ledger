@@ -1,0 +1,21 @@
+services:
+  api:
+    build: { context: ., dockerfile: deploy/api.Dockerfile }
+    restart: unless-stopped
+    environment:
+      DATABASE_PATH: /data/ledger.db
+      # Set to "true" once the site is served over HTTPS.
+      COOKIE_SECURE: ${COOKIE_SECURE:-false}
+      SESSION_DAYS: ${SESSION_DAYS:-30}
+    volumes:
+      - ledger-data:/data
+
+  web:
+    build: { context: ., dockerfile: deploy/web.Dockerfile }
+    restart: unless-stopped
+    depends_on: [api]
+    ports:
+      - "${PORT:-8080}:80"
+
+volumes:
+  ledger-data:
